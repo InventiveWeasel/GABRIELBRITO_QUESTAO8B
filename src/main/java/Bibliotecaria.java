@@ -3,11 +3,13 @@ public class Bibliotecaria {
 	UsuarioDB userDB;
 	LivroDB livroDB;
 	EmprestimoDB emprestimoDB;
+	SetorFinanceiro financeiro;
 	
-	public Bibliotecaria(UsuarioDB userDB, LivroDB livroDB, EmprestimoDB emprestimoDB){
+	public Bibliotecaria(UsuarioDB userDB, LivroDB livroDB, EmprestimoDB emprestimoDB, SetorFinanceiro financeiro){
 		this.userDB = userDB;
 		this.livroDB = livroDB;
 		this.emprestimoDB = emprestimoDB;
+		this.financeiro = financeiro;
 	}
 	
 	public boolean inserirUsuario(Usuario user){
@@ -37,6 +39,8 @@ public class Bibliotecaria {
 	}
 	
 	public boolean emprestarLivro(Usuario user, Livro livro){
+		if(!financeiro.isLiberado(user))
+			blockUser(user, 7, user.COBRANCA);
 		if(user.isBlocked() || !livro.isDisponivel())
 			return false;
 		user.addEmprestimo(livro.getId(), livro.getTitulo(),livro.getAutor(),"No prazo");
@@ -58,5 +62,9 @@ public class Bibliotecaria {
 		livroDB.updateLivro(livro.getId());
 		emprestimoDB.registrarDevolucao(livro);
 		return true;
+	}
+	
+	public String checkBookStatus(String titulo, String autor){
+		return livroDB.getLivroStatus(titulo, autor);
 	}
 }
