@@ -20,6 +20,13 @@ public class Livro {
 		return this.id;
 	}
 	
+	public String getTitulo(){
+		return titulo;
+	}
+	
+	public String getAutor(){
+		return autor;
+	}
 	public Usuario getEmprestador(){
 		return this.emprestador;
 	}

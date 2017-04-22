@@ -1,6 +1,8 @@
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,7 +65,7 @@ public class BibliotecariaTest {
 	
 	@Test
 	public void whenUserIsBlockedAndBorrowThenReturnFalse(){
-		bib.blockUser(user, 7);
+		bib.blockUser(user, 7, user.ATRASO);
 		assertFalse(bib.emprestarLivro(user, livro));
 	}
 	
@@ -84,7 +86,7 @@ public class BibliotecariaTest {
 	@Test
 	public void whenUserIsUnblockedAndTriesToBorrowThenReturnTrue(){
 		bib.emprestarLivro(user, livro);
-		bib.blockUser(user, 7);
+		bib.blockUser(user, 7, user.ATRASO);
 		bib.devolverLivro(user, livro);
 		assertTrue(bib.emprestarLivro(user, livro2));
 	}
@@ -103,4 +105,39 @@ public class BibliotecariaTest {
 		assertTrue(status.equals("retirado"));
 		
 	}
+	
+	//Usuario consegue ter acesso a sua lista de emprestimos
+	@Test
+	public void whenUserChecksOwnEmprestimoList(){
+		bib.emprestarLivro(user, livro);
+		bib.emprestarLivro(user, livro2);
+		ArrayList<Emprestimo> emprestimos = user.getEmprestimoList();
+		assertTrue(emprestimos.get(0).getId() == livro.getId());
+		assertTrue(emprestimos.get(1).getId() == livro2.getId());
+	}
+	
+	@Test
+	public void whenUserChecksOwnEmprestimoListSituation(){
+		bib.emprestarLivro(user, livro);
+		bib.emprestarLivro(user, livro2);
+		ArrayList<Emprestimo> emprestimos = user.getEmprestimoList();
+		assertTrue(emprestimos.get(0).getSituacao().equals("No prazo"));
+		assertTrue(emprestimos.get(1).getSituacao().equals("No prazo"));
+	}
+	
+	@Test
+	public void whenUserChecksSituationAndIsFreeReturnSituation(){
+		assertTrue(user.checkSituation().equals("liberado"));
+	}
+	
+	@Test
+	public void whenUserIsBlockedAndCheckSituation(){
+		bib.blockUser(user, 7, user.ATRASO);
+		assertTrue(user.checkSituation().equals("atraso"));
+		bib.unBlockUser(user);
+		assertTrue(user.checkSituation().equals("liberado"));
+		bib.blockUser(user, 7, user.COBRANCA);
+		assertTrue(user.checkSituation().equals("cobranca"));
+	}
+	
 }

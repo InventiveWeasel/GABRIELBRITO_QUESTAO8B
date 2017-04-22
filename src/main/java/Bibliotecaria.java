@@ -26,8 +26,8 @@ public class Bibliotecaria {
 		return livroDB.deleteLivro(livro.getId());
 	}
 	
-	public void blockUser(Usuario user, int prazo){
-		user.block(prazo);
+	public void blockUser(Usuario user, int prazo, int motivo){
+		user.block(prazo, motivo);
 		userDB.updateUser(user.getId());
 	}
 	
@@ -39,6 +39,7 @@ public class Bibliotecaria {
 	public boolean emprestarLivro(Usuario user, Livro livro){
 		if(user.isBlocked() || !livro.isDisponivel())
 			return false;
+		user.addEmprestimo(livro.getId(), livro.getTitulo(),livro.getAutor(),"No prazo");
 		livro.emprestar(user);
 		livroDB.updateLivro(livro.getId());
 		emprestimoDB.registrarEmprestimo(livro);
@@ -52,6 +53,7 @@ public class Bibliotecaria {
 		if(aux.isBlocked()){
 			unBlockUser(user);
 		}
+		user.removerEmprestimo(livro.getId());
 		livro.devolver();
 		livroDB.updateLivro(livro.getId());
 		emprestimoDB.registrarDevolucao(livro);
